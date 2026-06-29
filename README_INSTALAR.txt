@@ -1,42 +1,46 @@
-INSTALAÇÃO NA HOSTINGER VPS - PULSE HAPPY CLUB
+PULSE HAPPY CLUB COM PAINEL ADMINISTRATIVO
 
-1) Criar pasta do site:
-mkdir -p /var/www/pulsehappyclub
+Login inicial:
+Usuario: admin
+Senha: 123456
 
-2) Enviar os arquivos index.html, style.css e script.js para:
-/var/www/pulsehappyclub
+Comandos para instalar na VPS:
 
-3) Permissão:
-chown -R www-data:www-data /var/www/pulsehappyclub
-chmod -R 755 /var/www/pulsehappyclub
+cd /var/www
+rm -rf pulsehappyclub-admin
+mkdir pulsehappyclub-admin
 
-4) Apache VirtualHost:
+Envie/descompacte os arquivos dentro de:
+/var/www/pulsehappyclub-admin
+
+Depois rode:
+
+cd /var/www/pulsehappyclub-admin
+npm install
+pm2 start server.js --name pulsehappyclub-admin
+pm2 save
+
+Apache:
+a2enmod proxy proxy_http
 nano /etc/apache2/sites-available/pulsehappyclub.conf
 
-Cole:
+Use este conteúdo:
+
 <VirtualHost *:80>
     ServerName pulsehappyclub.com.br
     ServerAlias www.pulsehappyclub.com.br
-    DocumentRoot /var/www/pulsehappyclub
 
-    <Directory /var/www/pulsehappyclub>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
+    ProxyPreserveHost On
+    ProxyPass / http://127.0.0.1:3010/
+    ProxyPassReverse / http://127.0.0.1:3010/
 
     ErrorLog ${APACHE_LOG_DIR}/pulsehappyclub-error.log
     CustomLog ${APACHE_LOG_DIR}/pulsehappyclub-access.log combined
 </VirtualHost>
 
-5) Ativar site:
-a2ensite pulsehappyclub.conf
+Depois:
 systemctl reload apache2
 
-6) SSL:
-apt update
-apt install certbot python3-certbot-apache -y
-certbot --apache -d pulsehappyclub.com.br -d www.pulsehappyclub.com.br
-
-IMPORTANTE:
-Troque pulsehappyclub.com.br pelo domínio real que você for usar.
+Acessos:
+Site: http://SEU_IP
+Admin: http://SEU_IP/admin
